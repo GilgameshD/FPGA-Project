@@ -1,19 +1,20 @@
-module BCD7(din, dout);
-  input   [3 : 0] din;
-  output  [6 : 0] dout;
+// the BCD coders for the leds
+module BCD7(in, out);
+  input [3 : 0] in;
+  output [6 : 0] out;
 
-  assign  dout = 
-          (din == 4'h0) ? 7'b000_0001:
-          (din == 4'h1) ? 7'b000_0110:
-          (din == 4'h2) ? 7'b101_1011:
-          (din == 4'h3) ? 7'b100_1111:
-          (din == 4'h4) ? 7'b110_0110:
-          (din == 4'h5) ? 7'b110_1101:
-          (din == 4'h6) ? 7'b111_1101:
-          (din == 4'h7) ? 7'b000_0111:
-          (din == 4'h8) ? 7'b111_1111:
-          (din == 4'h9) ? 7'b110_1111:
-          7'b0;
+  assign out = 
+        (in == 4'h0) ? 7'b000_0001:
+        (in == 4'h1) ? 7'b100_1111:
+        (in == 4'h2) ? 7'b001_0010:
+        (in == 4'h3) ? 7'b000_0110:
+        (in == 4'h4) ? 7'b100_1100:
+        (in == 4'h5) ? 7'b010_0100:
+        (in == 4'h6) ? 7'b010_0000:
+        (in == 4'h7) ? 7'b000_1111:
+        (in == 4'h8) ? 7'b000_0000:
+        (in == 4'h9) ? 7'b000_0100:
+        7'b0;    // default number is "8"
 endmodule
 
 
@@ -50,5 +51,5 @@ module Decoder(inData, clkScan, AN, out);
 	  endcase
   end
 	
-  BCD7 b(.din(everyData), .dout(out));	
+  BCD7 b(.in(everyData), .out(out));	
 endmodule

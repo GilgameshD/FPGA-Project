@@ -42,8 +42,8 @@ module frequency(sigin,
                              .num(num1));     // output the number
   // latcher
   Latcher                l(.latch(latch),     // latch the number
-                           .indata(num1),
-                           .outdata(num2));
+                           .inData(num1),
+                           .outData(num2));
   // to show the number in leds
   Decoder                de(.clkScan(clkscan), 
                             .inData(num2), 
