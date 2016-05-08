@@ -17,7 +17,7 @@ module signalinput(testmode, sysclk, sigin1);
 	always @(testmode) begin
 		case(testmode[1 : 0])
 			2'b00 : divide = 21'b000000_1111_1010_0000000;  //3125Hz
-			2'b01 : divide = 21'b0000000_1111_1010_000000;  //250Hz
+			2'b01 : divide = 21'b0000000_1111_1010_000000;  //6250Hz
 			2'b10 : divide = 21'b1111_0100_0010_0100_00000; //50Hz
 			2'b11 : divide = 21'b00000000_1111_1010_00000;  //12500Hz
 		endcase
