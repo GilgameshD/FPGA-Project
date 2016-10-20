@@ -1,0 +1,193 @@
+ROMDATA[0] <= 32'h08000003;             //j main                      # Normal boot: jump to main entry
+ROMDATA[1] <= 32'h0800005b;             //j interrupt                 # Interrupt: jump to handling
+ROMDATA[2] <= 32'h1000ffff;             //dead:beq $0,$0,dead         # Exception: dead
+                                        //
+                                        //main:
+ROMDATA[3] <= 32'h2008003f;             //addi $t0,$0,0x3F            # digit display
+ROMDATA[4] <= 32'hac080000;             //sw $t0,0($0)
+ROMDATA[5] <= 32'h20080006;             //addi $t0,$0,0x06
+ROMDATA[6] <= 32'hac080004;             //sw $t0,4($0)
+ROMDATA[7] <= 32'h2008005b;             //addi $t0,$0,0x5B
+ROMDATA[8] <= 32'hac080008;             //sw $t0,8($0)
+ROMDATA[9] <= 32'h2008004f;             //addi $t0,$0,0x4F
+ROMDATA[10] <= 32'hac08000c;            //sw $t0,12($0)
+ROMDATA[11] <= 32'h20080066;            //addi $t0,$0,0x66
+ROMDATA[12] <= 32'hac080010;            //sw $t0,16($0)
+ROMDATA[13] <= 32'h2008006d;            //addi $t0,$0,0x6D
+ROMDATA[14] <= 32'hac080014;            //sw $t0,20($0)
+ROMDATA[15] <= 32'h2008007d;            //addi $t0,$0,0x7D
+ROMDATA[16] <= 32'hac080018;            //sw $t0,24($0)
+ROMDATA[17] <= 32'h20080007;            //addi $t0,$0,0x07
+ROMDATA[18] <= 32'hac08001c;            //sw $t0,28($0)
+ROMDATA[19] <= 32'h2008007f;            //addi $t0,$0,0x7F
+ROMDATA[20] <= 32'hac080020;            //sw $t0,32($0)
+ROMDATA[21] <= 32'h2008006f;            //addi $t0,$0,0x6F
+ROMDATA[22] <= 32'hac080024;            //sw $t0,36($0)
+ROMDATA[23] <= 32'h20080077;            //addi $t0,$0,0x77
+ROMDATA[24] <= 32'hac080028;            //sw $t0,40($0)
+ROMDATA[25] <= 32'h2008007c;            //addi $t0,$0,0x7C
+ROMDATA[26] <= 32'hac08002c;            //sw $t0,44($0)
+ROMDATA[27] <= 32'h20080039;            //addi $t0,$0,0x39
+ROMDATA[28] <= 32'hac080030;            //sw $t0,48($0)
+ROMDATA[29] <= 32'h2008005e;            //addi $t0,$0,0x5E
+ROMDATA[30] <= 32'hac080034;            //sw $t0,52($0)
+ROMDATA[31] <= 32'h20080079;            //addi $t0,$0,0x79
+ROMDATA[32] <= 32'hac080038;            //sw $t0,56($0)
+ROMDATA[33] <= 32'h20080071;            //addi $t0,$0,0x71
+ROMDATA[34] <= 32'hac08003c;            //sw $t0,60($0)
+                                        //
+ROMDATA[35] <= 32'h3c104000;            //lui $s0,0x4000              # $s0: base address of peripherals
+                                        //
+ROMDATA[36] <= 32'hac000040;            //sw $0,0x40($0)              # 0x40(=64): scan counter (0~3)
+                                        //
+ROMDATA[37] <= 32'hae000008;            //sw $0, 0x08($s0)		    # Disable TCON
+                                        //
+ROMDATA[38] <= 32'h3c08ffff;            //lui $t0,0xffff
+ROMDATA[39] <= 32'hae080000;            //sw $t0,0x00($s0)            # timer rate=1048576T (about 0.01s)
+                                        //
+ROMDATA[40] <= 32'h2008ffff;            //addi $t0, $0, 0xffff
+ROMDATA[41] <= 32'hae080004;            //sw $t0,0x04($s0)            # load TH as 0xffffffff
+                                        //
+ROMDATA[42] <= 32'h20080003;            //addi $t0, $0, 0x03	        # Enable the TimerIT
+ROMDATA[43] <= 32'hae080008;            //sw $t0, 0x08($s0)
+                                        //
+                                        //# read $a0 and $a1 from UART
+                                        //read_a0:
+ROMDATA[44] <= 32'h8e080020;            //lw $t0,0x20($s0)
+ROMDATA[45] <= 32'h31090008;            //andi $t1,$t0,0x8
+ROMDATA[46] <= 32'h1120fffd;            //beq $t1,$0,read_a0
+ROMDATA[47] <= 32'h8e04001c;            //lw $a0,0x1c($s0)
+                                        //read_a1:
+ROMDATA[48] <= 32'h8e080020;            //lw $t0,0x20($s0)
+ROMDATA[49] <= 32'h31090008;            //andi $t1,$t0,0x8
+ROMDATA[50] <= 32'h1120fffd;            //beq $t1,$0,read_a1
+ROMDATA[51] <= 32'h8e05001c;            //lw $a1,0x1c($s0)
+                                        //
+ROMDATA[52] <= 32'hac040044;            //sw $a0,0x44($0)             # reserve a copy for display
+ROMDATA[53] <= 32'hac050048;            //sw $a1,0x48($0)
+                                        //
+                                        //# The gcd function. $v0=gcd($a0,$a1)
+ROMDATA[54] <= 32'h00005820;            //add $t3,$0,$0               # t3: count of common 2's
+                                        //
+                                        //loop_main:
+ROMDATA[55] <= 32'h14a00002;            //bne $a1,$0,fi_a1_zero       # if(a1==0)v0=a0;break;
+ROMDATA[56] <= 32'h00801020;            //add $v0,$a0,$0
+ROMDATA[57] <= 32'h08000051;            //j end_main
+                                        //fi_a1_zero:
+ROMDATA[58] <= 32'h14800002;            //bne $a0,$0,fi_a0_zero       # if(a0==0)v0=a1;break;
+ROMDATA[59] <= 32'h00a01020;            //add $v0,$a1,$0
+ROMDATA[60] <= 32'h08000051;            //j end_main
+                                        //fi_a0_zero:
+                                        //
+                                        //loop_div2:
+ROMDATA[61] <= 32'h30880001;            //andi $t0,$a0,1          # t0=a0%2;
+ROMDATA[62] <= 32'h30a90001;            //andi $t1,$a1,1          # t1=a1%2;
+ROMDATA[63] <= 32'h01095024;            //and $t2,$t0,$t1
+ROMDATA[64] <= 32'h15400008;            //bne $t2,$0,end_div2     # if(t0&&t1)break;
+                                        //
+ROMDATA[65] <= 32'h15000001;            //bne $t0,$0,fi_div_a0    # if(!t0)a0/=2;
+ROMDATA[66] <= 32'h00042042;            //srl $a0,$a0,1
+                                        //    fi_div_a0:
+                                        //
+ROMDATA[67] <= 32'h15200001;            //bne $t1,$0,fi_div_a1    # if(!t1)a1/=2;
+ROMDATA[68] <= 32'h00052842;            //srl $a1,$a1,1
+                                        //    fi_div_a1:
+                                        //
+ROMDATA[69] <= 32'h01095025;            //or $t2,$t0,$t1          # if(!t0&&!t1)t3+=1;
+ROMDATA[70] <= 32'h15400001;            //bne $t2,$0,fi_inc_t3
+ROMDATA[71] <= 32'h216b0001;            //addi $t3,$t3,1
+                                        //    fi_inc_t3:
+                                        //
+ROMDATA[72] <= 32'h0800003d;            //j loop_div2
+                                        //end_div2:
+                                        //
+ROMDATA[73] <= 32'h0085402b;            //sltu $t0,$a0,$a1            # if(a0<a1)
+ROMDATA[74] <= 32'h11000003;            //beq $t0,$0,a0_ge_a1
+ROMDATA[75] <= 32'h00a42823;            //subu $a1,$a1,$a0            # a1=(a1-a0)/2;
+ROMDATA[76] <= 32'h00052842;            //srl $a1,$a1,1
+ROMDATA[77] <= 32'h08000050;            //j fi_sub
+                                        //a0_ge_a1:
+ROMDATA[78] <= 32'h00852023;            //subu $a0,$a0,$a1            # else a0=(a0-a1)/2;
+ROMDATA[79] <= 32'h00042042;            //srl $a0,$a0,1
+                                        //fi_sub:
+                                        //
+ROMDATA[80] <= 32'h08000037;            //j loop_main
+                                        //end_main:
+                                        //
+                                        //loop_x2:
+ROMDATA[81] <= 32'h11600003;            //beq $t3,$0,end_x2           # v0<<=t3;
+ROMDATA[82] <= 32'h00021040;            //sll $v0,$v0,1
+ROMDATA[83] <= 32'h216bffff;            //addi $t3,$t3,-1
+ROMDATA[84] <= 32'h08000051;            //j loop_x2
+                                        //end_x2:
+                                        //
+ROMDATA[85] <= 32'hae02004c;            //sw $v0,0x4c($s0)            # reserve a copy for display
+                                        //
+                                        //# write v0 to UART
+                                        //write:
+ROMDATA[86] <= 32'h8e080020;            //lw $t0,0x20($s0)
+ROMDATA[87] <= 32'h31090004;            //andi $t1,$t0,0x4
+ROMDATA[88] <= 32'h1120fffd;            //beq $t1,$0,write
+ROMDATA[89] <= 32'hae020018;            //sw $v0,0x18($s0)
+                                        //
+ROMDATA[90] <= 32'h0800002c;            //j read_a0
+                                        //
+                                        //interrupt:
+                                        //
+ROMDATA[91] <= 32'h8e080008;            //lw $t0, 0x08($s0)
+ROMDATA[92] <= 32'h3108fff9;            //andi $t0, $t0, 0xfff9
+ROMDATA[93] <= 32'hae080008;            //sw $t0, 0x08($s0)		  #Disable the IT status
+                                        //
+                                        //
+ROMDATA[94] <= 32'h00004020;            //add $t0,$0,$0               # t0: bitset for display control
+ROMDATA[95] <= 32'h8c110040;            //lw $s1,0x40($0)             # load scan counter
+                                        //
+                                        //# Display layout:
+                                        //# AN3     AN2     AN1     AN0
+                                        //# a0_high a0_low  a1_high a1_low
+                                        //
+ROMDATA[96] <= 32'h32290002;            //andi $t1,$s1,2              # set 0-7 bits (the digit to display)
+ROMDATA[97] <= 32'h11200002;            //beq $t1,$0,load_a1
+ROMDATA[98] <= 32'h8c0a0044;            //lw $t2,0x44($0)
+ROMDATA[99] <= 32'h08000065;            //j end_load_a
+                                        //load_a1:
+ROMDATA[100] <= 32'h8c0a0048;           //lw $t2,0x48($0)
+                                        //end_load_a:
+ROMDATA[101] <= 32'h200a00ff;           //addi $t2,$0,0xFF
+                                        //
+ROMDATA[102] <= 32'h32290001;           //andi $t1,$s1,1
+ROMDATA[103] <= 32'h11200003;           //beq $t1,$0,load_low4
+ROMDATA[104] <= 32'h314a00f0;           //andi $t2,$t2,0xF0
+ROMDATA[105] <= 32'h000a5102;           //srl $t2,$t2,4
+ROMDATA[106] <= 32'h0800006c;           //j end_load_4
+                                        //load_low4:
+ROMDATA[107] <= 32'h314a000f;           //andi $t2,$t2,0xF
+                                        //end_load_4:
+                                        //
+ROMDATA[108] <= 32'h000a5080;           //sll $t2,$t2,2
+ROMDATA[109] <= 32'h8d480000;           //lw $t0,0($t2)
+                                        //
+ROMDATA[110] <= 32'h200b0100;           //addi $t3,$0,0x100           # set 8-11 bits (where to display)
+ROMDATA[111] <= 32'h00114820;           //add $t1,$0,$s1
+                                        //set_an:
+ROMDATA[112] <= 32'h11200003;           //beq $t1,$0,an_ok
+ROMDATA[113] <= 32'h000b5840;           //sll $t3,$t3,1
+ROMDATA[114] <= 32'h2129ffff;           //addi $t1,$t1,-1
+ROMDATA[115] <= 32'h08000070;           //j set_an
+                                        //an_ok:
+ROMDATA[116] <= 32'h010b4025;           //or $t0,$t0,$t3
+                                        //
+ROMDATA[117] <= 32'hae080014;           //sw $t0,0x14($s0)            # send digit display to hardware
+ROMDATA[118] <= 32'h8c0f004c;           //lw $t7,0x4c($0)
+ROMDATA[119] <= 32'hae0f000c;           //sw $t7,0x0c($s0)            # send LED display to hardware
+                                        //
+ROMDATA[120] <= 32'h22310001;           //addi $s1,$s1,1              # increase and save the scan counter
+ROMDATA[121] <= 32'h32310003;           //andi $s1,$s1,3
+ROMDATA[122] <= 32'hac110040;           //sw $s1,0x40($0)
+                                        //
+ROMDATA[123] <= 32'h8e080008;           //lw $t0, 0x08($s0)
+ROMDATA[124] <= 32'h20110002;           //addi $s1, $0, 0x0002
+ROMDATA[125] <= 32'h01114025;           //or $t0, $t0, $s1
+ROMDATA[126] <= 32'hae080008;           //sw $t0, 0x08($s0)		  #Disable the IT status
+                                        //
+ROMDATA[127] <= 32'h03400008;           //jr $k0
